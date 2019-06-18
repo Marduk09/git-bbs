@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+	<h3>掲示板アプリケーション</h3>
+	
+	<form th:action= "@{/bord/insert-article}" method = "post" th:object=${articleForm}>
+		<label for = "articleName">投稿者名：</label>
+		<input type= "text" name="name" id="articleName" th:field="*{name}">
+		<span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" style="color:red">エラー</span><br>
+		<label for = "articleContent">投稿内容：</label>
+		<textarea rows="5" cols="30" name="content" id=articleContent th:field="*{content}"></textarea>
+		<span th:if="${#fields.hasErrors('content')}" th:errors="*{content}" style="color:red">エラー</span><br>
+		<input type="submit" value="記事投稿">
+	</form>
+
+	<hr>
+	
+	<div th:each="article: ${articleList}">
+		投稿ID 	: <span th:text="${article.id}">?</span><br>
+		投稿者名: <span th:text="${article.name}">?</span><br>
+		投稿内容: <span th:text="${article.content}">?</span><br>
+		<form th:action="@{/bord/delete-article}" method="post">
+			<input type="hidden" name="articleId" th:value="${article.id}">
+			<input type="submit" value="記事削除">
+		</form>
+		<input type="button" value="いいね" id="like_button">
+		<span></span>
+		<br>
+		<div th:each="comment: ${article.commentList}">
+			コメントID 	: <span th:text="${comment.id}">?</span><br>
+			コメント者名: <span th:text="${comment.name}">?</span><br>
+			コメント内容: <span th:text="${comment.content}">?</span><br>
+			<br>
+		</div>
+		<form th:action="@{/bord/insert-comment}" method="post" th:object="${commentForm}">
+			<label th:for = "commentName + ${article.id}">　　名前：</label>
+			<span th:if="${#fields.detailedErrors()} AND ${article.id} == *{articleId}" >
+				<input type= "text" name="name" th:id="commentName + ${article.id}" th:field=*{name}>
+			</span>
+			<span th:unless="${#fields.detailedErrors()} AND ${article.id} == *{articleId}" >
+				<input type= "text" name="name" th:id="commentName + ${article.id}" >
+			</span>
+			<span th:if="${#fields.hasErrors('name')} AND ${article.id} == *{articleId}" th:errors="*{name}" style="color:red">エラー</span><br>
+			<label th:for = "commentContent + ${article.id}">コメント：</label>
+			<span th:if="${#fields.detailedErrors()} AND ${article.id} == *{articleId}">
+				<textarea rows="3" cols="30" name="content" th:id="commentContent + ${article.id}" th:field=*{content}></textarea>
+			</span>
+			<span th:unless="${#fields.detailedErrors()} AND ${article.id} == *{articleId}">
+				<textarea rows="3" cols="30" name="content" th:id="commentContent + ${article.id}"></textarea>
+			</span>
+			<span th:if="${#fields.hasErrors('content')} AND ${article.id} == *{articleId}" th:errors="*{content}" style="color:red">エラー</span><br><br>
+			<input type="hidden" name="articleId" th:value="${article.id}">
+			<input type="submit" value="コメント投稿">
+			<hr>
+		</form>
+	</div>
+</body>
+</html>
